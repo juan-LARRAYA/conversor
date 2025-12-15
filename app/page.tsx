@@ -20,6 +20,7 @@ export default function Home() {
   const [history, setHistory] = useState<ConversionEntry[]>([]);
   const [sessionId, setSessionId] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [copiedValue, setCopiedValue] = useState<string>("");
 
   // Generate or retrieve session ID
   useEffect(() => {
@@ -169,6 +170,45 @@ export default function Home() {
 
   const clearHistory = () => {
     setHistory([]);
+  };
+
+  const copyToClipboard = async (value: string, type: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedValue(`${type}-${value}`);
+      setTimeout(() => setCopiedValue(""), 2000);
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+    }
+  };
+
+  const exportToExcel = () => {
+    if (history.length === 0) return;
+
+    // Create CSV content
+    const headers = "Fecha y Hora,Binario,Decimal,Hexadecimal\n";
+    const rows = history.map(entry => {
+      const date = entry.timestamp.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      return `"${date}","${entry.binary}","${entry.decimal}","${entry.hex}"`;
+    }).join("\n");
+
+    const csvContent = headers + rows;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `historial_conversiones_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -322,19 +362,67 @@ export default function Home() {
                     <div className="grid grid-cols-3 gap-3 text-sm">
                       <div>
                         <span className="text-[#9cdcfe] font-semibold block mb-1">BIN</span>
-                        <span className="text-[#d4d4d4] font-mono break-all">{entry.binary}</span>
+                        <button
+                          onClick={() => copyToClipboard(entry.binary, `${entry.id}-bin`)}
+                          className="text-[#d4d4d4] font-mono break-all hover:bg-[#3e3e42] px-2 py-1 rounded transition-all text-left w-full relative group"
+                          title="Click para copiar"
+                        >
+                          {entry.binary}
+                          {copiedValue === `${entry.id}-bin-${entry.binary}` && (
+                            <span className="absolute -top-8 left-0 bg-[#4ec9b0] text-[#1e1e1e] text-xs px-2 py-1 rounded">
+                              ¡Copiado!
+                            </span>
+                          )}
+                        </button>
                       </div>
                       <div>
                         <span className="text-[#ce9178] font-semibold block mb-1">DEC</span>
-                        <span className="text-[#d4d4d4] font-mono break-all">{entry.decimal}</span>
+                        <button
+                          onClick={() => copyToClipboard(entry.decimal, `${entry.id}-dec`)}
+                          className="text-[#d4d4d4] font-mono break-all hover:bg-[#3e3e42] px-2 py-1 rounded transition-all text-left w-full relative group"
+                          title="Click para copiar"
+                        >
+                          {entry.decimal}
+                          {copiedValue === `${entry.id}-dec-${entry.decimal}` && (
+                            <span className="absolute -top-8 left-0 bg-[#4ec9b0] text-[#1e1e1e] text-xs px-2 py-1 rounded">
+                              ¡Copiado!
+                            </span>
+                          )}
+                        </button>
                       </div>
                       <div>
                         <span className="text-[#c586c0] font-semibold block mb-1">HEX</span>
-                        <span className="text-[#d4d4d4] font-mono break-all">{entry.hex}</span>
+                        <button
+                          onClick={() => copyToClipboard(entry.hex, `${entry.id}-hex`)}
+                          className="text-[#d4d4d4] font-mono break-all hover:bg-[#3e3e42] px-2 py-1 rounded transition-all text-left w-full relative group"
+                          title="Click para copiar"
+                        >
+                          {entry.hex}
+                          {copiedValue === `${entry.id}-hex-${entry.hex}` && (
+                            <span className="absolute -top-8 left-0 bg-[#4ec9b0] text-[#1e1e1e] text-xs px-2 py-1 rounded">
+                              ¡Copiado!
+                            </span>
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Export Button */}
+            {history.length > 0 && (
+              <div className="mt-6">
+                <button
+                  onClick={exportToExcel}
+                  className="w-full px-6 py-3 bg-[#4ec9b0] hover:bg-[#3da88f] text-[#1e1e1e] font-semibold rounded transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Exportar a Excel (.csv)
+                </button>
               </div>
             )}
           </div>
