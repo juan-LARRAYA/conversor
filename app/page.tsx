@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 
 type NumberBase = "binary" | "decimal" | "hexadecimal";
 
@@ -182,7 +183,7 @@ export default function Home() {
     }
   };
 
-  const exportToExcel = () => {
+  const exportToCSV = () => {
     if (history.length === 0) return;
 
     // Create CSV content
@@ -209,6 +210,40 @@ export default function Home() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const exportToExcel = () => {
+    if (history.length === 0) return;
+
+    // Prepare data for Excel
+    const data = history.map(entry => ({
+      "Fecha y Hora": entry.timestamp.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      "Binario": entry.binary,
+      "Decimal": entry.decimal,
+      "Hexadecimal": entry.hex,
+    }));
+
+    // Create workbook and worksheet
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Historial");
+
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 20 }, // Fecha y Hora
+      { wch: 20 }, // Binario
+      { wch: 15 }, // Decimal
+      { wch: 15 }, // Hexadecimal
+    ];
+
+    // Download the file
+    XLSX.writeFile(workbook, `historial_conversiones_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -411,9 +446,9 @@ export default function Home() {
               </div>
             )}
 
-            {/* Export Button */}
+            {/* Export Buttons */}
             {history.length > 0 && (
-              <div className="mt-6">
+              <div className="mt-6 space-y-3">
                 <button
                   onClick={exportToExcel}
                   className="w-full px-6 py-3 bg-[#4ec9b0] hover:bg-[#3da88f] text-[#1e1e1e] font-semibold rounded transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
@@ -421,7 +456,16 @@ export default function Home() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Exportar a Excel (.csv)
+                  Exportar a Excel (.xlsx)
+                </button>
+                <button
+                  onClick={exportToCSV}
+                  className="w-full px-6 py-3 bg-[#007acc] hover:bg-[#005a9e] text-white font-semibold rounded transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Exportar a CSV
                 </button>
               </div>
             )}
