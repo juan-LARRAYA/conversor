@@ -18,6 +18,50 @@ export default function Home() {
   const [hexValue, setHexValue] = useState("");
   const [lastEdited, setLastEdited] = useState<NumberBase | null>(null);
   const [history, setHistory] = useState<ConversionEntry[]>([]);
+  const [sessionId, setSessionId] = useState<string>("");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Generate or retrieve session ID
+  useEffect(() => {
+    let id = localStorage.getItem("conversor_session_id");
+    if (!id) {
+      id = `user_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      localStorage.setItem("conversor_session_id", id);
+    }
+    setSessionId(id);
+  }, []);
+
+  // Load history from localStorage on mount
+  useEffect(() => {
+    if (!sessionId) return;
+
+    try {
+      const savedHistory = localStorage.getItem(`conversor_history_${sessionId}`);
+      if (savedHistory) {
+        const parsed = JSON.parse(savedHistory);
+        // Convert timestamp strings back to Date objects
+        const historyWithDates = parsed.map((entry: ConversionEntry) => ({
+          ...entry,
+          timestamp: new Date(entry.timestamp),
+        }));
+        setHistory(historyWithDates);
+      }
+    } catch (error) {
+      console.error("Error loading history:", error);
+    }
+    setIsLoaded(true);
+  }, [sessionId]);
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (!isLoaded || !sessionId) return;
+
+    try {
+      localStorage.setItem(`conversor_history_${sessionId}`, JSON.stringify(history));
+    } catch (error) {
+      console.error("Error saving history:", error);
+    }
+  }, [history, sessionId, isLoaded]);
 
   const isValidBinary = (value: string): boolean => {
     return /^[01]*$/.test(value);
@@ -224,17 +268,25 @@ export default function Home() {
 
           {/* History Section */}
           <div className="bg-[#252526] rounded-lg shadow-2xl p-6 md:p-8 border border-[#3e3e42]">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[#4ec9b0]">
-                Historial de Conversiones
-              </h2>
-              {history.length > 0 && (
-                <button
-                  onClick={clearHistory}
-                  className="px-4 py-2 bg-[#f48771] hover:bg-[#e06856] text-white text-sm font-semibold rounded transition-all"
-                >
-                  Limpiar Historial
-                </button>
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-2xl font-bold text-[#4ec9b0]">
+                  Historial de Conversiones
+                </h2>
+                {history.length > 0 && (
+                  <button
+                    onClick={clearHistory}
+                    className="px-4 py-2 bg-[#f48771] hover:bg-[#e06856] text-white text-sm font-semibold rounded transition-all"
+                  >
+                    Limpiar Historial
+                  </button>
+                )}
+              </div>
+              {sessionId && (
+                <div className="flex items-center gap-2 text-xs text-[#858585]">
+                  <div className="w-2 h-2 bg-[#4ec9b0] rounded-full animate-pulse"></div>
+                  <span>Sesión activa - Tus datos se guardan automáticamente</span>
+                </div>
               )}
             </div>
 
@@ -289,9 +341,12 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-[#858585] mt-6 text-sm">
-          Herramienta de conversión numérica universal
-        </p>
+        <div className="text-center mt-6 text-sm text-[#858585]">
+          <p className="mb-2">Herramienta de conversión numérica universal</p>
+          <p className="text-xs">
+            💾 Tu historial se guarda localmente y persiste entre sesiones
+          </p>
+        </div>
       </div>
     </div>
   );
