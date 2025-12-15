@@ -4,14 +4,19 @@ Conversor entre sistemas numéricos: Binario, Decimal y Hexadecimal.
 
 ![Preview de la app](utils/page.png)
 
+## 🔗 Link de Producción
+
+- **App Principal**: [https://conversor-juan.vercel.app](https://conversor-juan.vercel.app)
+- **Dashboard de Analytics**: [https://conversor-juan.vercel.app/stats](https://conversor-juan.vercel.app/stats)
+
 ## Características
 
-- Conversión bidireccional entre binario, decimal y hexadecimal
-- Actualización en tiempo real
-- Interfaz responsive y moderna
-- Modo claro/oscuro automático
-- Validación de entrada para cada sistema numérico
-- Desplegado en Vercel para acceso desde cualquier lugar
+- **Conversión Bidireccional**: Convierte entre binario, decimal y hexadecimal en tiempo real con validación automática
+- **Click-to-Copy**: Copia cualquier valor del historial con un simple click y feedback visual
+- **Exportación Avanzada**: Exporta tu historial de conversiones a Excel (.xlsx) o CSV
+- **Persistencia Inteligente**: Sistema de sesión invisible con localStorage - tus datos se mantienen sin necesidad de login
+- **Analytics Completo**: Dashboard en `/stats` con métricas de uso, ubicación, dispositivos y navegadores
+- **Tema VSCode Dark**: Interfaz profesional con tipografía monoespaciada Consolas/Monaco y colores del tema oscuro de VSCode
 
 ## Uso
 
