@@ -2,6 +2,8 @@
 
 Conversor entre sistemas numéricos: Binario, Decimal y Hexadecimal.
 
+![Preview de la app](utils/page.png)
+
 ## Características
 
 - Conversión bidireccional entre binario, decimal y hexadecimal

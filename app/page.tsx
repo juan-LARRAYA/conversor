@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import * as XLSX from "xlsx";
+import { analytics } from "@/lib/analytics";
 
 type NumberBase = "binary" | "decimal" | "hexadecimal";
 
@@ -31,6 +33,9 @@ export default function Home() {
       localStorage.setItem("conversor_session_id", id);
     }
     setSessionId(id);
+
+    // Initialize analytics session
+    analytics.initSession(id);
   }, []);
 
   // Load history from localStorage on mount
@@ -86,6 +91,12 @@ export default function Home() {
     const decimal = parseInt(binary, 2);
     setDecimalValue(decimal.toString());
     setHexValue(decimal.toString(16).toUpperCase());
+
+    // Track conversion
+    analytics.trackEvent({
+      type: 'conversion',
+      data: { from: 'binary', value: binary },
+    });
   };
 
   const convertFromDecimal = (decimal: string) => {
@@ -97,6 +108,12 @@ export default function Home() {
     const num = parseInt(decimal, 10);
     setBinaryValue(num.toString(2));
     setHexValue(num.toString(16).toUpperCase());
+
+    // Track conversion
+    analytics.trackEvent({
+      type: 'conversion',
+      data: { from: 'decimal', value: decimal },
+    });
   };
 
   const convertFromHex = (hex: string) => {
@@ -108,6 +125,12 @@ export default function Home() {
     const decimal = parseInt(hex, 16);
     setBinaryValue(decimal.toString(2));
     setDecimalValue(decimal.toString());
+
+    // Track conversion
+    analytics.trackEvent({
+      type: 'conversion',
+      data: { from: 'hexadecimal', value: hex },
+    });
   };
 
   const handleBinaryChange = (value: string) => {
@@ -147,6 +170,9 @@ export default function Home() {
     setDecimalValue("");
     setHexValue("");
     setLastEdited(null);
+
+    // Track clear event
+    analytics.trackEvent({ type: 'clear' });
   };
 
   const saveValues = () => {
@@ -163,14 +189,23 @@ export default function Home() {
     };
 
     setHistory([newEntry, ...history]);
+
+    // Track save event
+    analytics.trackEvent({ type: 'save' });
   };
 
   const deleteEntry = (id: number) => {
     setHistory(history.filter(entry => entry.id !== id));
+
+    // Track delete event
+    analytics.trackEvent({ type: 'delete', data: { entryId: id } });
   };
 
   const clearHistory = () => {
     setHistory([]);
+
+    // Track clear history event
+    analytics.trackEvent({ type: 'clear_history' });
   };
 
   const copyToClipboard = async (value: string, type: string) => {
@@ -178,6 +213,9 @@ export default function Home() {
       await navigator.clipboard.writeText(value);
       setCopiedValue(`${type}-${value}`);
       setTimeout(() => setCopiedValue(""), 2000);
+
+      // Track copy event
+      analytics.trackEvent({ type: 'copy', data: { value } });
     } catch (error) {
       console.error("Error copying to clipboard:", error);
     }
@@ -185,6 +223,9 @@ export default function Home() {
 
   const exportToCSV = () => {
     if (history.length === 0) return;
+
+    // Track export event
+    analytics.trackEvent({ type: 'export_csv' });
 
     // Create CSV content
     const headers = "Fecha y Hora,Binario,Decimal,Hexadecimal\n";
@@ -214,6 +255,9 @@ export default function Home() {
 
   const exportToExcel = () => {
     if (history.length === 0) return;
+
+    // Track export event
+    analytics.trackEvent({ type: 'export_excel' });
 
     // Prepare data for Excel
     const data = history.map(entry => ({
@@ -479,6 +523,19 @@ export default function Home() {
             <p className="text-xs">
               💾 Tu historial se guarda localmente y persiste entre sesiones
             </p>
+          </div>
+
+          {/* Stats Link */}
+          <div>
+            <Link
+              href="/stats"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#007acc] hover:bg-[#005a9e] text-white text-sm font-semibold rounded transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Ver Estadísticas de Uso
+            </Link>
           </div>
 
           {/* Developer Watermark */}
