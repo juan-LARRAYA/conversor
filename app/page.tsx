@@ -4,11 +4,20 @@ import { useState, useEffect } from "react";
 
 type NumberBase = "binary" | "decimal" | "hexadecimal";
 
+interface ConversionEntry {
+  id: number;
+  binary: string;
+  decimal: string;
+  hex: string;
+  timestamp: Date;
+}
+
 export default function Home() {
   const [binaryValue, setBinaryValue] = useState("");
   const [decimalValue, setDecimalValue] = useState("");
   const [hexValue, setHexValue] = useState("");
   const [lastEdited, setLastEdited] = useState<NumberBase | null>(null);
+  const [history, setHistory] = useState<ConversionEntry[]>([]);
 
   const isValidBinary = (value: string): boolean => {
     return /^[01]*$/.test(value);
@@ -94,93 +103,193 @@ export default function Home() {
     setLastEdited(null);
   };
 
+  const saveValues = () => {
+    if (!binaryValue && !decimalValue && !hexValue) {
+      return;
+    }
+
+    const newEntry: ConversionEntry = {
+      id: Date.now(),
+      binary: binaryValue || "0",
+      decimal: decimalValue || "0",
+      hex: hexValue || "0",
+      timestamp: new Date(),
+    };
+
+    setHistory([newEntry, ...history]);
+  };
+
+  const deleteEntry = (id: number) => {
+    setHistory(history.filter(entry => entry.id !== id));
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Conversor de Números
-          </h1>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-            Binario • Decimal • Hexadecimal
-          </p>
+    <div className="min-h-screen bg-[#1e1e1e] p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Converter Section */}
+          <div className="bg-[#252526] rounded-lg shadow-2xl p-6 md:p-8 border border-[#3e3e42]">
+            <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-[#4ec9b0]">
+              Conversor de Números
+            </h1>
+            <p className="text-center text-[#858585] mb-8">
+              Binario • Decimal • Hexadecimal
+            </p>
 
-          <div className="space-y-6">
-            {/* Binary Input */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Binario (Base 2)
-              </label>
-              <input
-                type="text"
-                value={binaryValue}
-                onChange={(e) => handleBinaryChange(e.target.value)}
-                placeholder="Ej: 1010"
-                className="w-full px-4 py-3 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Solo dígitos 0 y 1
-              </p>
+            <div className="space-y-6">
+              {/* Binary Input */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-[#9cdcfe]">
+                  Binario (Base 2)
+                </label>
+                <input
+                  type="text"
+                  value={binaryValue}
+                  onChange={(e) => handleBinaryChange(e.target.value)}
+                  placeholder="Ej: 1010"
+                  className="w-full px-4 py-3 text-lg border-2 border-[#3e3e42] rounded bg-[#1e1e1e] text-[#d4d4d4] placeholder-[#6a6a6a] focus:ring-2 focus:ring-[#007acc] focus:border-transparent outline-none transition-all"
+                />
+                <p className="text-xs text-[#858585]">
+                  Solo dígitos 0 y 1
+                </p>
+              </div>
+
+              {/* Decimal Input */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-[#ce9178]">
+                  Decimal (Base 10)
+                </label>
+                <input
+                  type="text"
+                  value={decimalValue}
+                  onChange={(e) => handleDecimalChange(e.target.value)}
+                  placeholder="Ej: 10"
+                  className="w-full px-4 py-3 text-lg border-2 border-[#3e3e42] rounded bg-[#1e1e1e] text-[#d4d4d4] placeholder-[#6a6a6a] focus:ring-2 focus:ring-[#4ec9b0] focus:border-transparent outline-none transition-all"
+                />
+                <p className="text-xs text-[#858585]">
+                  Números del 0 al 9
+                </p>
+              </div>
+
+              {/* Hexadecimal Input */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-[#c586c0]">
+                  Hexadecimal (Base 16)
+                </label>
+                <input
+                  type="text"
+                  value={hexValue}
+                  onChange={(e) => handleHexChange(e.target.value)}
+                  placeholder="Ej: A"
+                  className="w-full px-4 py-3 text-lg border-2 border-[#3e3e42] rounded bg-[#1e1e1e] text-[#d4d4d4] placeholder-[#6a6a6a] focus:ring-2 focus:ring-[#c586c0] focus:border-transparent outline-none transition-all"
+                />
+                <p className="text-xs text-[#858585]">
+                  Dígitos 0-9 y letras A-F
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={saveValues}
+                  className="flex-1 px-6 py-3 bg-[#007acc] hover:bg-[#005a9e] text-white font-semibold rounded transition-all transform hover:scale-105 active:scale-95"
+                >
+                  Guardar Valores
+                </button>
+                <button
+                  onClick={clearAll}
+                  className="flex-1 px-6 py-3 bg-[#f48771] hover:bg-[#e06856] text-white font-semibold rounded transition-all transform hover:scale-105 active:scale-95"
+                >
+                  Limpiar Todo
+                </button>
+              </div>
             </div>
 
-            {/* Decimal Input */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Decimal (Base 10)
-              </label>
-              <input
-                type="text"
-                value={decimalValue}
-                onChange={(e) => handleDecimalChange(e.target.value)}
-                placeholder="Ej: 10"
-                className="w-full px-4 py-3 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Números del 0 al 9
-              </p>
+            {/* Info Section */}
+            <div className="mt-8 p-4 bg-[#1e1e1e] border border-[#3e3e42] rounded-lg">
+              <h2 className="font-semibold text-[#4ec9b0] mb-2">
+                ¿Cómo usar?
+              </h2>
+              <ul className="text-sm text-[#858585] space-y-1">
+                <li>• Escribe un número en cualquier campo</li>
+                <li>• La conversión se realiza automáticamente</li>
+                <li>• Presiona &quot;Guardar Valores&quot; para agregar al historial</li>
+              </ul>
             </div>
-
-            {/* Hexadecimal Input */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Hexadecimal (Base 16)
-              </label>
-              <input
-                type="text"
-                value={hexValue}
-                onChange={(e) => handleHexChange(e.target.value)}
-                placeholder="Ej: A"
-                className="w-full px-4 py-3 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Dígitos 0-9 y letras A-F
-              </p>
-            </div>
-
-            {/* Clear Button */}
-            <button
-              onClick={clearAll}
-              className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg"
-            >
-              Limpiar Todo
-            </button>
           </div>
 
-          {/* Info Section */}
-          <div className="mt-8 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg">
-            <h2 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              ¿Cómo usar?
-            </h2>
-            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-              <li>• Escribe un número en cualquier campo</li>
-              <li>• La conversión se realiza automáticamente</li>
-              <li>• Funciona en todos los sentidos simultáneamente</li>
-            </ul>
+          {/* History Section */}
+          <div className="bg-[#252526] rounded-lg shadow-2xl p-6 md:p-8 border border-[#3e3e42]">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-[#4ec9b0]">
+                Historial de Conversiones
+              </h2>
+              {history.length > 0 && (
+                <button
+                  onClick={clearHistory}
+                  className="px-4 py-2 bg-[#f48771] hover:bg-[#e06856] text-white text-sm font-semibold rounded transition-all"
+                >
+                  Limpiar Historial
+                </button>
+              )}
+            </div>
+
+            {history.length === 0 ? (
+              <div className="text-center py-12 text-[#858585]">
+                <p className="text-lg mb-2">No hay conversiones guardadas</p>
+                <p className="text-sm">Realiza una conversión y presiona &quot;Guardar Valores&quot;</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                {history.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="bg-[#1e1e1e] border border-[#3e3e42] rounded-lg p-4 hover:border-[#007acc] transition-all"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="text-xs text-[#858585]">
+                        {entry.timestamp.toLocaleString('es-ES', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      <button
+                        onClick={() => deleteEntry(entry.id)}
+                        className="text-[#f48771] hover:text-[#e06856] text-sm font-semibold transition-colors"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <span className="text-[#9cdcfe] font-semibold block mb-1">BIN</span>
+                        <span className="text-[#d4d4d4] font-mono break-all">{entry.binary}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#ce9178] font-semibold block mb-1">DEC</span>
+                        <span className="text-[#d4d4d4] font-mono break-all">{entry.decimal}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#c586c0] font-semibold block mb-1">HEX</span>
+                        <span className="text-[#d4d4d4] font-mono break-all">{entry.hex}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-600 dark:text-gray-400 mt-6 text-sm">
+        <p className="text-center text-[#858585] mt-6 text-sm">
           Herramienta de conversión numérica universal
         </p>
       </div>
