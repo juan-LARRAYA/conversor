@@ -5,7 +5,6 @@ import RegisterServiceWorker from "./register-sw";
 export const metadata: Metadata = {
   title: "Binexa",
   description: "Conversor entre binario, decimal y hexadecimal",
-  manifest: "/manifest.json",
   icons: {
     icon: "/calculator.svg",
     apple: "/icons/icon-192x192.png",
@@ -30,7 +29,7 @@ export default function RootLayout({
     <html lang="es">
       <head>
         <link rel="icon" href="/calculator.svg" type="image/svg+xml" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#007acc" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
