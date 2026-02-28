@@ -1,7 +1,8 @@
 {
-  "name": "Binexa",
+  "id": "/binexa-converter-app",
+  "name": "Binexa - Conversor de Números",
   "short_name": "Binexa",
-  "description": "Conversor entre Binario, Decimal y Hexadecimal",
+  "description": "Conversor rápido y eficiente entre sistemas numéricos: Binario, Decimal y Hexadecimal. Incluye historial, exportación a Excel/CSV y estadísticas.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1e1e",
@@ -68,6 +69,20 @@
       "description": "Abrir dashboard de estadísticas",
       "url": "/stats",
       "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/screenshot-2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }

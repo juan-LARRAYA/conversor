@@ -1,10 +1,20 @@
 import { MetadataRoute } from 'next'
 
-export default function manifest(): MetadataRoute.Manifest {
+type ExtendedManifest = MetadataRoute.Manifest & {
+  screenshots?: Array<{
+    src: string
+    sizes: string
+    type: string
+    form_factor?: 'narrow' | 'wide'
+  }>
+}
+
+export default function manifest(): ExtendedManifest {
   return {
-    name: 'Binexa',
+    id: '/binexa-converter-app',
+    name: 'Binexa - Conversor de Números',
     short_name: 'Binexa',
-    description: 'Conversor entre Binario, Decimal y Hexadecimal',
+    description: 'Conversor rápido y eficiente entre sistemas numéricos: Binario, Decimal y Hexadecimal. Incluye historial, exportación a Excel/CSV y estadísticas.',
     start_url: '/',
     display: 'standalone',
     background_color: '#1e1e1e',
@@ -64,5 +74,19 @@ export default function manifest(): MetadataRoute.Manifest {
       },
     ],
     categories: ['utilities', 'productivity'],
+    screenshots: [
+      {
+        src: '/screenshots/screenshot-1.png',
+        sizes: '1080x1920',
+        type: 'image/png',
+        form_factor: 'narrow'
+      },
+      {
+        src: '/screenshots/screenshot-2.png',
+        sizes: '1080x1920',
+        type: 'image/png',
+        form_factor: 'narrow'
+      }
+    ]
   }
 }
