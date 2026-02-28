@@ -3,7 +3,7 @@ import "./globals.css";
 import RegisterServiceWorker from "./register-sw";
 
 export const metadata: Metadata = {
-  title: "Conversor de Números",
+  title: "Binexa",
   description: "Conversor entre binario, decimal y hexadecimal",
   manifest: "/manifest.json",
   icons: {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Conversor",
+    title: "Binexa",
   },
 };
 

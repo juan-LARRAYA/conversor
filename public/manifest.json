@@ -1,7 +1,7 @@
 {
-  "name": "Conversor de Números Universal",
-  "short_name": "Conversor",
-  "description": "Conversor entre sistemas numéricos: Binario, Decimal y Hexadecimal",
+  "name": "Binexa",
+  "short_name": "Binexa",
+  "description": "Conversor entre Binario, Decimal y Hexadecimal",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1e1e",
